@@ -4,8 +4,14 @@ import { addDebugFeature, addDebugPosition } from "./debug";
 import { snapPolygonToRoad } from "./overpass";
 import { equalPos, findMinDistancePosIndex } from "./distance";
 import { polygonToGpxUrl } from "./brouter";
+import rewind from "@turf/rewind";
 
-export async function makeRandomRoute(startPoint: Feature<Point>, length: number, steps = 5): Promise<string> {
+export async function makeRandomRoute(
+    startPoint: Feature<Point>,
+    length: number,
+    ccw: boolean,
+    steps = 5
+): Promise<string> {
     const radius = length / Math.PI / 2;
     console.log("going w/ radius", radius);
 
@@ -31,11 +37,11 @@ export async function makeRandomRoute(startPoint: Feature<Point>, length: number
     const poly1 = findRandomCheckpointPolygon(center, radius, steps, startPoint);
     const poly1b = shiftToStartPoint(startPoint, poly1);
 
-    const poly2 = await snapPolygonToRoad(startPoint, poly1);
+    const poly2 = await snapPolygonToRoad(startPoint, poly1b);
     console.log(JSON.stringify(poly2));
     addDebugFeature(poly2);
 
-    return polygonToGpxUrl(startPoint, poly2);
+    return polygonToGpxUrl(startPoint, poly2, ccw);
 }
 
 function shiftToStartPoint(startPoint: Feature<Point>, poly1: Feature<Polygon>): Feature<Polygon> {

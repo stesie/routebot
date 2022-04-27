@@ -8,9 +8,12 @@ const baseUrl = "https://brouter-api.brokenpipe.de/brouter";
 export async function polygonToGpxUrl(
     startPoint: Feature<Point>,
     poly: Feature<Polygon>,
+    ccw: boolean,
     profile = "fastbike-verylowtraffic"
 ) {
     const polyPoints = poly.geometry.coordinates[0];
+    if (!ccw) polyPoints.reverse();
+
     const pairs = collectPosPairs(polyPoints);
     const route = await Promise.all(pairs.map((pair) => callRouter(pair, profile)));
 

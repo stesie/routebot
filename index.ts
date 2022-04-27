@@ -34,6 +34,11 @@ const optionList = [
         description: "Write resulting GPX to this file.",
     },
     {
+        name: "ccw",
+        type: Boolean,
+        description: "Generate counter-clockwise route.",
+    },
+    {
         name: "debug-geojson-features",
         type: String,
         description: "Write GeoJSON FeatureCollection with debugging information to given file.",
@@ -62,7 +67,7 @@ if (options.help) {
 
 (async function () {
     const startPoint = point(options.start.split(/\s*,\s*/).map(Number));
-    const gpxUrl = await makeRandomRoute(startPoint, options.length);
+    const gpxUrl = await makeRandomRoute(startPoint, options.length, options.ccw);
 
     if (options["debug-geojson-features"]) {
         writeFileSync(options["debug-geojson-features"], JSON.stringify(getDebugFeatureCollection(), undefined, 4));
