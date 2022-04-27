@@ -1,12 +1,11 @@
 import { Feature, FeatureCollection, LineString, Point, Polygon, Position } from "@turf/helpers";
 import { addDebugFeature, addDebugPosition } from "./debug";
 import fetch from "node-fetch";
-import { isEqual } from "lodash";
 import distance from "@turf/distance";
 
 const baseUrl = "https://brouter-api.brokenpipe.de/brouter";
 
-export async function polygonToRoute(
+export async function polygonToGpxUrl(
     startPoint: Feature<Point>,
     poly: Feature<Polygon>,
     profile = "fastbike-verylowtraffic"
@@ -28,7 +27,7 @@ export async function polygonToRoute(
     const url = `${baseUrl}?lonlats=${lonlats}&profile=${profile}&alternativeidx=0&format=gpx`;
     console.log("brouter gpx url", url);
 
-    // 'https://brouter-api.brokenpipe.de/brouter?lonlats=9.930722,49.785628|9.932074,49.78107|9.935675,49.781846&profile=fastbike-verylowtraffic&alternativeidx=0&format=gpx'
+    return url;
 }
 
 function equalPos(a: Position, b: Position): boolean {
