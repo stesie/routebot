@@ -4,7 +4,6 @@ import { addDebugFeature, addDebugPosition } from "./debug";
 import { snapPolygonToRoad } from "./overpass";
 import { equalPos, findMinDistancePosIndex } from "./distance";
 import { polygonToGpxUrl } from "./brouter";
-import rewind from "@turf/rewind";
 
 export async function makeRandomRoute(
     startPoint: Feature<Point>,
