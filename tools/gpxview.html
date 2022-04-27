@@ -1,0 +1,36 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+    }
+
+    #leafletmap {
+      width: 100%;
+      height: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="leafletmap">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-gpx/1.7.0/gpx.min.js"></script>
+    <script>
+      var map = L.map('leafletmap', { zoomControl: false });
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data &copy; <a href="https://www.osm.org">OpenStreetMap</a>'
+      }).addTo(map);
+
+      var gpx = (new URLSearchParams(location.search)).get('r') || '/r/d32012.gpx';
+      new L.GPX(gpx, { async: true }).on('loaded', function (e) {
+        map.fitBounds(e.target.getBounds());
+      }).addTo(map);
+
+    </script>
+</body>
+
+</html>
