@@ -14,24 +14,6 @@ export async function makeRandomRoute(
     const radius = length / Math.PI / 2;
     console.log("going w/ radius", radius);
 
-    /* const poly2: Feature<Polygon> = {
-        type: "Feature",
-        properties: { fill: "#dd0", stroke: "#bb0" },
-        geometry: {
-            type: "Polygon",
-            coordinates: [
-                [
-                    [9.7272374, 49.9125713],
-                    [9.5008441, 49.820677],
-                    [9.5894801, 49.6561877],
-                    [9.8526421, 49.6563786],
-                    [9.943462461233139, 49.77135645006747],
-                    [9.7272374, 49.9125713],
-                ],
-            ],
-        },
-    }; */
-
     const center = findRandomCenterPos(startPoint, radius);
     const poly1 = findRandomCheckpointPolygon(center, radius, steps, startPoint);
     const poly1b = shiftToStartPoint(startPoint, poly1);
