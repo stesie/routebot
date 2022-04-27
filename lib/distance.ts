@@ -16,3 +16,7 @@ export function findMinDistancePosIndex(referencePoint: Feature<Point> | Positio
 
     return minDistanceIndex;
 }
+
+export function equalPos(a: Position, b: Position): boolean {
+    return distance(a, b) < 0.001;
+}

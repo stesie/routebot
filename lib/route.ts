@@ -1,8 +1,8 @@
-import { Feature, Point, Polygon, Position } from "@turf/helpers";
+import { Feature, Point, polygon, Polygon, Position } from "@turf/helpers";
 import circle from "@turf/circle";
 import { addDebugFeature, addDebugPosition } from "./debug";
 import { snapPolygonToRoad } from "./overpass";
-import { findMinDistancePosIndex } from "./distance";
+import { equalPos, findMinDistancePosIndex } from "./distance";
 import { polygonToGpxUrl } from "./brouter";
 
 export async function makeRandomRoute(startPoint: Feature<Point>, length: number, steps = 5): Promise<string> {
@@ -29,12 +29,26 @@ export async function makeRandomRoute(startPoint: Feature<Point>, length: number
 
     const center = findRandomCenterPos(startPoint, radius);
     const poly1 = findRandomCheckpointPolygon(center, radius, steps, startPoint);
+    const poly1b = shiftToStartPoint(startPoint, poly1);
 
     const poly2 = await snapPolygonToRoad(startPoint, poly1);
     console.log(JSON.stringify(poly2));
     addDebugFeature(poly2);
 
     return polygonToGpxUrl(startPoint, poly2);
+}
+
+function shiftToStartPoint(startPoint: Feature<Point>, poly1: Feature<Polygon>): Feature<Polygon> {
+    const points = poly1.geometry.coordinates[0];
+
+    while (!equalPos(points[0], startPoint.geometry.coordinates)) {
+        points.pop();
+        const p = points.shift();
+        points.push(p!);
+        points.push(points[0]);
+    }
+
+    return polygon([points]);
 }
 
 function findRandomCheckpointPolygon(

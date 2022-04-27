@@ -1,7 +1,7 @@
 import { Feature, FeatureCollection, LineString, Point, Polygon, Position } from "@turf/helpers";
 import { addDebugFeature, addDebugPosition } from "./debug";
 import fetch from "node-fetch";
-import distance from "@turf/distance";
+import { equalPos } from "./distance";
 
 const baseUrl = "https://brouter-api.brokenpipe.de/brouter";
 
@@ -28,10 +28,6 @@ export async function polygonToGpxUrl(
     console.log("brouter gpx url", url);
 
     return url;
-}
-
-function equalPos(a: Position, b: Position): boolean {
-    return distance(a, b) < 0.005;
 }
 
 function collectPosPairs(points: Position[]): [Position, Position][] {
