@@ -23,29 +23,33 @@ export async function snapPolygonToRoad(startPoint: Feature<Point>, poly: Featur
 }
 
 async function snapPosToRoad(pos: Position): Promise<Position> {
-    const query = `
+    for (const searchRadius of [1000, 5000]) {
+        const query = `
         [out:json];
         (way
             [highway~'tertiary|unclassified']
-            (around:1000.0,${pos[1]},${pos[0]});
+            (around:${searchRadius}.0,${pos[1]},${pos[0]});
             >;
         );
         out;
     `;
 
-    console.log("running overpass query", query);
-    const result = await overpassJson(query, {
-        verbose: true,
-        endpoint: "https://overpass.kumi.systems/api/interpreter",
-    });
+        const result = await overpassJson(query, {
+            verbose: true,
+            endpoint: "https://overpass.kumi.systems/api/interpreter",
+        });
 
-    if (!result.elements.length) {
-        throw new Error("Overpass Query returned no results :/");
+        if (!result.elements.length) {
+            console.log(`Overpass Query with radius=${searchRadius} returned no results :/`);
+            continue;
+        }
+
+        const nodes = result.elements.flatMap((el): Position[] => (el.type === "node" ? [[el.lon, el.lat]] : []));
+        const index = findMinDistancePosIndex(pos, nodes);
+
+        addDebugPosition(nodes[index], { "marker-color": "#dd0" });
+        return nodes[index];
     }
 
-    const nodes = result.elements.flatMap((el): Position[] => (el.type === "node" ? [[el.lon, el.lat]] : []));
-    const index = findMinDistancePosIndex(pos, nodes);
-
-    addDebugPosition(nodes[index], { "marker-color": "#dd0" });
-    return nodes[index];
+    throw new Error("Overpass queries failed :'(");
 }
