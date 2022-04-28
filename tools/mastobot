@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+set -xe
+
+out=`mktemp`
+yarn start $* -o "$out"
+
+key=`sha256sum "$out" | cut -c1-6`
+mv -f "$out" /r/$key.gpx
+
+chmod 644 /r/$key.gpx
+curl -o /r/$key.jpg "http://192.168.107.1:8082/screenshot/http://q0a.de/gpxview.html%3Fr%3D/r/$key.gpx?width=1024&height=576"
+
+tracklen=`head /r/$key.gpx | grep track-length  | cut -d ' ' -f 4`
+tlenkm=$[tracklen / 1000]
+
+hm=`head /r/$key.gpx | grep track-length  | cut -d ' ' -f 8`
+
+toot post -m /r/$key.jpg -l deu "Lust auf eine Feierabendrunde? $tlenkm km, $hm Hm https://q0a.de/r/$key.gpx #bottest"
+
