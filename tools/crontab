@@ -1,0 +1,5 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+30 14 * * * root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 45 2> /proc/1/fd/2 > /proc/1/fd/1
+

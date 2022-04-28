@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -xe
 
+msg="$1"; shift
+
 out=`mktemp`
 yarn start $* -o "$out"
 
@@ -15,5 +17,5 @@ tlenkm=$[tracklen / 1000]
 
 hm=`head /r/$key.gpx | grep track-length  | cut -d ' ' -f 8`
 
-toot post -m /r/$key.jpg -l deu "Lust auf eine Feierabendrunde? $tlenkm km, $hm Hm https://q0a.de/r/$key.gpx #bottest"
+toot post -m /r/$key.jpg -l deu "$msg $tlenkm km, $hm Hm https://q0a.de/r/$key.gpx #bottest"
 
