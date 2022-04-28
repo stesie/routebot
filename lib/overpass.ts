@@ -18,12 +18,12 @@ export async function snapPolygonToRoad(startPoint: Feature<Point>, poly: Featur
 
     snapped.push(snapped[0]);
 
-    const newPoly = polygon([snapped], { fill: "#dd0" });
+    const newPoly = polygon([snapped], { "fill-opacity": 0, stroke: "#aa0", "stroke-width": 4 });
     return newPoly;
 }
 
 async function snapPosToRoad(pos: Position): Promise<Position> {
-    for (const searchRadius of [1000, 5000]) {
+    for (const searchRadius of [1000, 2000, 5000]) {
         const query = `
         [out:json];
         (way

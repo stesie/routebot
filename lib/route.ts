@@ -58,13 +58,13 @@ function findRandomCheckpointPolygon(
 }
 
 function findRandomCenterPos(startPoint: Feature<Point>, radius: number): Position {
-    const c1 = circle(startPoint, radius, { steps: 180 });
+    const c1 = circle(startPoint, radius, { steps: 180, properties: { "fill-opacity": 0.1 } });
     addDebugFeature(startPoint);
     addDebugFeature(c1);
 
     const center = c1.geometry.coordinates[0][Math.floor(Math.random() * c1.geometry.coordinates[0].length)];
     console.log("chosen random center", center);
-    addDebugPosition(center);
+    addDebugPosition(center, { "marker-color": "#0d0" });
 
     return center;
 }

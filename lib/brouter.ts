@@ -50,6 +50,7 @@ async function callRouter(pair: [Position, Position], profile: string): Promise<
     const response = await fetch(url);
 
     const result: FeatureCollection<LineString> = (await response.json()) as any;
+    result.features[0].properties!.stroke = "#f00";
     addDebugFeature(result.features[0]);
 
     return result.features[0];
@@ -94,6 +95,6 @@ function findDeadEndOnRoute(segA: Position[], segB: Position[]): undefined | [Po
 
     if (offA === 1) return;
 
-    addDebugPosition(segB[offB - 1]);
+    addDebugPosition(segB[offB - 1], { "marker-color": "#d00" });
     return [segB[0], segB[offB - 1]];
 }
