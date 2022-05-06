@@ -36,7 +36,7 @@ async function snapPosToRoad(pos: Position): Promise<Position> {
 
         const result = await overpassJson(query, {
             verbose: true,
-            endpoint: "https://overpass.kumi.systems/api/interpreter",
+            endpoint: "https://overpass-api.brokenpipe.de/api/interpreter",
         });
 
         if (!result.elements.length) {
