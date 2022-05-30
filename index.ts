@@ -67,7 +67,7 @@ if (options.help) {
 
 (async function () {
     const startPoint = point(options.start.split(/\s*,\s*/).map(Number));
-    const gpxUrl = await makeRandomRoute(startPoint, options.length, options.ccw);
+    const gpxUrl = await makeRandomRoute(startPoint, options.length, { ccw: options.ccw });
 
     if (options["debug-geojson-features"]) {
         writeFileSync(options["debug-geojson-features"], JSON.stringify(getDebugFeatureCollection(), undefined, 4));
