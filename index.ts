@@ -3,10 +3,12 @@ import commandLineUsage from "command-line-usage";
 import { Feature, point, polygon, Polygon, Position } from "@turf/helpers";
 import { makeRandomRoute } from "./lib/route";
 import { getDebugFeatureCollection } from "./lib/debug";
-import { writeFileSync } from "fs";
+import { createReadStream, writeFileSync } from "fs";
 import fetch from "node-fetch";
 import { overpassJson } from "overpass-ts";
 import { findMinDistancePosIndex } from "./lib/distance";
+import { join, parse } from "path";
+import { login } from "masto";
 
 const optionList = [
     {
@@ -46,6 +48,11 @@ const optionList = [
         description: "Make the route target a random amenity of that type (e.g. 'ice_cream').",
     },
     {
+        name: "toot",
+        type: String,
+        description: "Automatically post route as toot to mastodon.",
+    },
+    {
         name: "debug-geojson-features",
         type: String,
         description: "Write GeoJSON FeatureCollection with debugging information to given file.",
@@ -70,6 +77,10 @@ if (options.help) {
         ])
     );
     process.exit(0);
+}
+
+if (options.toot && !options.out) {
+    options.out = `${(Math.random() + 1).toString(36).slice(-6)}.gpx`;
 }
 
 (async function () {
@@ -98,10 +109,26 @@ if (options.help) {
                   throw new Error("Overpass failed to find amenity within range :/");
               }
 
-              const nodes = result.elements.flatMap((el): Position[] => (el.type === "node" ? [[el.lon, el.lat]] : []));
-              const index = findMinDistancePosIndex(pos, nodes);
+              const nodes = result.elements.filter((el) => el.type === "node");
+              const positions = nodes.map((el): Position => {
+                  if (el.type !== "node") {
+                      throw new Error("expect result to contain nodes only");
+                  }
 
-              points[3] = nodes[index];
+                  return [el.lon, el.lat];
+              });
+              const index = findMinDistancePosIndex(pos, positions);
+              const tags = nodes[index].tags as any;
+
+              if (options.toot && tags && tags.name) {
+                  options.toot += ` bei "${tags.name}"`;
+
+                  if (tags["addr:city"]) {
+                      options.toot += ` in ${tags["addr:city"]}`;
+                  }
+              }
+
+              points[3] = positions[index];
               console.log("points with amenity", points);
 
               return polygon([points]);
@@ -118,5 +145,45 @@ if (options.help) {
         writeFileSync(options.out, gpxData);
     } else {
         console.log(gpxData);
+    }
+
+    if (options.toot) {
+        // FIXME
+        const gpxUrl = `https://q0a.de/r/${options.out}`;
+        const gpxviewUrl = `https://q0a.de/gpxview.html?r=${gpxUrl}`;
+        const rendertronUrl = `https://render-tron.appspot.com/screenshot/${encodeURIComponent(
+            gpxviewUrl
+        )}?width=1024&height=576`;
+        const parsedName = parse(options.out);
+        const jpgFileName = join(parsedName.dir, `${parsedName.name}.jpg`);
+        writeFileSync(jpgFileName, await (await fetch(rendertronUrl)).buffer());
+
+        const matches = gpxData.match(/track-length = (\d+) filtered ascend = (\d+)/);
+        if (!matches) {
+            throw new Error("length / ascend info missing from gpx file :(");
+        }
+
+        const tootText = `${options.toot} ${Math.round(Number.parseInt(matches[1], 10) / 1000)} km, ${
+            matches[2]
+        } Hm ${gpxUrl} #bottest" `;
+
+        const masto = await login({
+            url: "https://wue.social",
+            accessToken: process.env["ROUTEBOT_MASTO_ACCESS_TOKEN"],
+        });
+
+        // Upload the image
+        const attachment = await masto.mediaAttachments.create({
+            file: createReadStream(jpgFileName),
+        });
+
+        // Toot!
+        const status = await masto.statuses.create({
+            status: tootText,
+            visibility: "direct",
+            mediaIds: [attachment.id],
+        });
+
+        console.log(status);
     }
 })();
