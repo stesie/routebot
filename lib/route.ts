@@ -8,6 +8,7 @@ import { polygonToGpxUrl } from "./brouter";
 interface RandomRouteOptions {
     ccw?: boolean;
     steps?: number;
+    checkpointPolygonHook?: (polygon: Feature<Polygon>) => Feature<Polygon> | Promise<Feature<Polygon>>;
 }
 
 export async function makeRandomRoute(
@@ -23,10 +24,12 @@ export async function makeRandomRoute(
     const poly1b = shiftToStartPoint(startPoint, poly1);
 
     const poly2 = await snapPolygonToRoad(startPoint, poly1b);
-    console.log(JSON.stringify(poly2));
-    addDebugFeature(poly2);
+    const poly2b = options?.checkpointPolygonHook ? await options.checkpointPolygonHook(poly2) : poly2;
 
-    return polygonToGpxUrl(startPoint, poly2, options?.ccw ?? false);
+    console.log(JSON.stringify(poly2b));
+    addDebugFeature(poly2b);
+
+    return polygonToGpxUrl(startPoint, poly2b, options?.ccw ?? false);
 }
 
 function shiftToStartPoint(startPoint: Feature<Point>, poly1: Feature<Polygon>): Feature<Polygon> {

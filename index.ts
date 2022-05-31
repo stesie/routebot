@@ -1,10 +1,12 @@
 import commandLineArgs from "command-line-args";
 import commandLineUsage from "command-line-usage";
-import { point } from "@turf/helpers";
+import { Feature, point, polygon, Polygon, Position } from "@turf/helpers";
 import { makeRandomRoute } from "./lib/route";
 import { getDebugFeatureCollection } from "./lib/debug";
 import { writeFileSync } from "fs";
 import fetch from "node-fetch";
+import { overpassJson } from "overpass-ts";
+import { findMinDistancePosIndex } from "./lib/distance";
 
 const optionList = [
     {
@@ -39,6 +41,11 @@ const optionList = [
         description: "Generate counter-clockwise route.",
     },
     {
+        name: "amenity",
+        type: String,
+        description: "Make the route target a random amenity of that type (e.g. 'ice_cream').",
+    },
+    {
         name: "debug-geojson-features",
         type: String,
         description: "Write GeoJSON FeatureCollection with debugging information to given file.",
@@ -67,7 +74,40 @@ if (options.help) {
 
 (async function () {
     const startPoint = point(options.start.split(/\s*,\s*/).map(Number));
-    const gpxUrl = await makeRandomRoute(startPoint, options.length, { ccw: options.ccw });
+    const checkpointPolygonHook = options["amenity"]
+        ? async (input: Feature<Polygon>): Promise<Feature<Polygon>> => {
+              const points = input.geometry.coordinates[0];
+              console.log("points before running hook", points);
+              const pos = points[3];
+
+              const query = `
+              [out:json];
+              (node
+                  [amenity='${options["amenity"]}']
+                  (around:25000.0,${pos[1]},${pos[0]});
+              );
+              out;
+          `;
+
+              const result = await overpassJson(query, {
+                  verbose: true,
+                  endpoint: "https://overpass-api.brokenpipe.de/api/interpreter",
+              });
+
+              if (!result.elements.length) {
+                  throw new Error("Overpass failed to find amenity within range :/");
+              }
+
+              const nodes = result.elements.flatMap((el): Position[] => (el.type === "node" ? [[el.lon, el.lat]] : []));
+              const index = findMinDistancePosIndex(pos, nodes);
+
+              points[3] = nodes[index];
+              console.log("points with amenity", points);
+
+              return polygon([points]);
+          }
+        : undefined;
+    const gpxUrl = await makeRandomRoute(startPoint, options.length, { ccw: options.ccw, checkpointPolygonHook });
 
     if (options["debug-geojson-features"]) {
         writeFileSync(options["debug-geojson-features"], JSON.stringify(getDebugFeatureCollection(), undefined, 4));
