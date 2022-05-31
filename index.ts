@@ -10,6 +10,10 @@ import { findMinDistancePosIndex } from "./lib/distance";
 import { join, parse } from "path";
 import { login } from "masto";
 
+if (process.env.ROUTEBOT_WORKDIR) {
+    process.chdir(process.env.ROUTEBOT_WORKDIR);
+}
+
 const optionList = [
     {
         name: "help",
@@ -89,7 +93,7 @@ if (options.toot && !options.out) {
         ? async (input: Feature<Polygon>): Promise<Feature<Polygon>> => {
               const points = input.geometry.coordinates[0];
               console.log("points before running hook", points);
-              const pos = points[3];
+              const pos = points[2];
 
               const query = `
               [out:json];
@@ -128,7 +132,7 @@ if (options.toot && !options.out) {
                   }
               }
 
-              points[3] = positions[index];
+              options.marker = points[2] = positions[index];
               console.log("points with amenity", points);
 
               return polygon([points]);
@@ -148,9 +152,9 @@ if (options.toot && !options.out) {
     }
 
     if (options.toot) {
-        // FIXME
-        const gpxUrl = `https://q0a.de/r/${options.out}`;
-        const gpxviewUrl = `https://q0a.de/gpxview.html?r=${gpxUrl}`;
+        const gpxUrl = `${process.env.ROUTEBOT_WORKDIR_URL}/${options.out}`;
+        let gpxviewUrl = `https://q0a.de/gpxview.html?r=${gpxUrl}`;
+        if (options.marker) gpxviewUrl += `&m=${options.marker.join(',')}`
         const rendertronUrl = `https://render-tron.appspot.com/screenshot/${encodeURIComponent(
             gpxviewUrl
         )}?width=1024&height=576`;
@@ -165,7 +169,7 @@ if (options.toot && !options.out) {
 
         const tootText = `${options.toot} ${Math.round(Number.parseInt(matches[1], 10) / 1000)} km, ${
             matches[2]
-        } Hm ${gpxUrl} #bottest" `;
+        } Hm ${gpxUrl} #bottest`;
 
         const masto = await login({
             url: "https://wue.social",

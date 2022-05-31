@@ -30,6 +30,8 @@
         map.fitBounds(e.target.getBounds());
       }).addTo(map);
 
+      var marker = (new URLSearchParams(location.search)).get('m');
+      if (marker) L.marker(marker.split(',').reverse()).addTo(map);
     </script>
 </body>
 
