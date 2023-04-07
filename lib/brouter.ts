@@ -2,7 +2,9 @@ import { Feature, FeatureCollection, LineString, Point, Polygon, Position } from
 import { addDebugFeature, addDebugPosition } from "./debug";
 import fetch from "node-fetch";
 import { equalPos } from "./distance";
+import { Mutex } from "async-mutex";
 
+const brouterMutex = new Mutex();
 const baseUrl = "https://brouter-api.brokenpipe.de/brouter";
 
 export async function polygonToGpxUrl(
@@ -47,7 +49,7 @@ async function callRouter(pair: [Position, Position], profile: string): Promise<
     const lonlats = pair.map((x) => x.join(",")).join("|");
     const url = `${baseUrl}?lonlats=${lonlats}&profile=${profile}&alternativeidx=0&format=geojson`;
     console.log("calling brouter w/", url);
-    const response = await fetch(url);
+    const response = await brouterMutex.runExclusive(() => fetch(url));
 
     const result: FeatureCollection<LineString> = (await response.json()) as any;
     result.features[0].properties!.stroke = "#f00";
