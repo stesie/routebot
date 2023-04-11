@@ -1,12 +1,15 @@
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
-30 14 * * 1 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 45 2> /proc/1/fd/2 > /proc/1/fd/1
-30 14 * * 2 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 48 2> /proc/1/fd/2 > /proc/1/fd/1
-30 14 * * 3 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 60 2> /proc/1/fd/2 > /proc/1/fd/1
-30 14 * * 4 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 42 2> /proc/1/fd/2 > /proc/1/fd/1
-30 14 * * 5 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 50 2> /proc/1/fd/2 > /proc/1/fd/1
+30 14 * * 1 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 35 2> /proc/1/fd/2 > /proc/1/fd/1
+30 14 * * 2 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 38 2> /proc/1/fd/2 > /proc/1/fd/1
+30 14 * * 3 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 42 2> /proc/1/fd/2 > /proc/1/fd/1
+30 14 * * 4 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 32 2> /proc/1/fd/2 > /proc/1/fd/1
+30 14 * * 5 root cd /app && ./tools/mastobot "Lust auf eine Feierabendrunde?" -l 30 2> /proc/1/fd/2 > /proc/1/fd/1
 
-0 8 * * 6 root cd /app && ./tools/mastobot 'Endlich Wochenende!' -l 85 2> /proc/1/fd/2 > /proc/1/fd/1
-0 8 * * 7 root cd /app && ./tools/mastobot 'Sonntagsrunde gefällig!?' -l 100 2> /proc/1/fd/2 > /proc/1/fd/1
+0 8 * * 6 root cd /app && ./tools/mastobot 'Endlich Wochenende!' -l 65 2> /proc/1/fd/2 > /proc/1/fd/1
+0 8 * * 7 root cd /app && ./tools/mastobot 'Sonntagsrunde gefällig!?' -l 80 2> /proc/1/fd/2 > /proc/1/fd/1
 
+30 8 * * 2 root cd /app && ./tools/mastobot unlisted "Hej @Ute, hier ein Routenvorschlag für dich 🚴" -l 35 -s 10.014744,49.707777 2> /proc/1/fd/2 > /proc/1/fd/1
+30 8 * * 5 root cd /app && ./tools/mastobot unlisted "Hej @Ute, dein Rad vermisst dich 🚴" -l 28 -s 10.014744,49.707777 2> /proc/1/fd/2 > /proc/1/fd/1
+30 9 * * 6 root cd /app && ./tools/mastobot unlisted "Hej @Ute, Kette rechts 🤙" -l 68 -s 10.014744,49.707777 2> /proc/1/fd/2 > /proc/1/fd/1
